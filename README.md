@@ -98,23 +98,4 @@ Returns `503 contract_not_deployed` when no deployment exists — it reports
 nothing rather than guessing, since a guess would make it the authority this
 design avoids.
 
----
-
-## Known limitations
-
-Honest scope notes, not oversights:
-
-- **Registration is centralized.** The admin controls the electoral roll, so
-  eligibility is trusted even though tallying is not. A Merkle-root allowlist or
-  token-gated eligibility would remove this; it's out of scope here.
-- **Ballots are public.** `VoteCast` is indexed by voter, so the chain reveals
-  who voted for whom. Secret ballots need commit–reveal or zk proofs.
-- **`block.timestamp` is proposer-influenceable** by a few seconds. Harmless for
-  hour- or day-scale windows; don't reuse this pattern for second-precision timing.
-- **One election per deployment.** Running a second election means deploying a
-  second contract (or adding a factory).
-- **Local network only** so far — no testnet deploy config or gas tuning yet.
-
-## License
-
 MIT
