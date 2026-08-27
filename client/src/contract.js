@@ -35,18 +35,32 @@ export async function signerContract(config) {
 }
 
 /**
- * Turns a revert into the specific reason the contract gave.
- * The 4-byte selector is buried at different depths depending on the wallet, so
- * probe the known shapes before falling back to the raw message.
+ * Finds the 4-byte revert selector, which different providers bury at different
+ * depths. Notably `hardhat node` returns `data` as an OBJECT ({ message, data })
+ * rather than a hex string, so every candidate is checked for shape, not just
+ * for presence — a nullish-coalescing chain would stop at the object and lose it.
+ */
+function extractRevertData(error) {
+  const candidates = [
+    error?.data,
+    error?.data?.data,
+    error?.info?.error?.data,
+    error?.info?.error?.data?.data,
+    error?.error?.data,
+    error?.error?.data?.data,
+    error?.revert?.data,
+  ];
+  return candidates.find((value) => typeof value === "string" && value.startsWith("0x"));
+}
+
+/**
+ * Turns a revert into the specific reason the contract gave, so the UI can say
+ * "you already voted" instead of "transaction failed".
  */
 export function decodeRevert(error, iface) {
-  const data =
-    error?.data ??
-    error?.info?.error?.data ??
-    error?.error?.data ??
-    error?.revert?.data;
+  const data = extractRevertData(error);
 
-  if (typeof data === "string" && data.startsWith("0x")) {
+  if (data) {
     try {
       const parsed = iface.parseError(data);
       if (parsed && ERROR_MESSAGES[parsed.name]) return ERROR_MESSAGES[parsed.name];
