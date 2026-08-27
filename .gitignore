@@ -1,0 +1,19 @@
+node_modules/
+artifacts/
+cache/
+typechain-types/
+coverage/
+coverage.json
+
+# Deployment output is machine-local; regenerate with `npm run deploy:local`.
+deployments/
+
+.env
+.env.local
+*.log
+npm-debug.log*
+
+client/dist/
+.DS_Store
+.vscode/
+.idea/
